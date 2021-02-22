@@ -18,14 +18,14 @@ class enemy:
     def enemy(self, x, y):
         screen.blit(self.enemylooks, (x, y))
 
+    def enemy_killed(self):
+        self.kill()  # inbuilt method in pygame
 
-class small_enemies:
+
+class small_enemies(enemy):
     def __init__(self):
+        enemy.__init__(self)
         self.enemylooks = pygame.image.load('battleship.png')
-        self.enemyX = random.randint(0, 736)
-        self.enemyY = random.randint(50, 108)
-        self.enemy_changeX = 0.3
-        self.enemy_changeY = 0.3
 
     def enemy(self, x, y):
         screen.blit(self.enemylooks, (x, y))
@@ -69,4 +69,4 @@ if __name__ == '__main__':
     chindi3 = small_enemies()
     chindi4 = small_enemies()
 
-    rungame([boss,boss, chindi,chindi2,chindi3,chindi4])
+    rungame([boss, boss, chindi, chindi2, chindi3, chindi4])
