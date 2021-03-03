@@ -1,3 +1,4 @@
+
 import pygame
 import random
 import math
@@ -9,7 +10,7 @@ pygame.init()
 # Boss
 class enemy:
     def __init__(self):
-        self.enemylooks = pygame.image.load('battleship.png')
+        self.enemylooks = pygame.image.load('ufo.png')
         self.enemyX = random.randint(0, 736)
         self.enemyY = random.randint(50, 108)
         self.enemy_changeX = 0.3
@@ -28,6 +29,8 @@ class small_enemies:
         self.enemy_changeX = 0.3
         self.enemy_changeY = 0.3
 
+
+
     def enemy(self, x, y):
         screen.blit(self.enemylooks, (x, y))
 
@@ -41,35 +44,19 @@ playerImage = pygame.image.load("spaceship.png")
 playerX = 336
 playerY = 450
 
-boss = enemy()
-chindi = small_enemies()
-chindi2 = small_enemies()
-chindi3 = small_enemies()
-chindi4 = small_enemies()
-list_of_object = [boss, chindi]
-
 # Bullet
 bulletImg = pygame.image.load('bullet.png')
 bulletX = 0
-bulletY = 440
+bulletY = 480
 bulletX_change = 0
 bulletY_change = 1.5
 bullet_state = "start"
 
-# Bullet_enemy
-bulletImg_enemy = pygame.image.load('bullet.png')
-bulletY_enemy = chindi.enemyY
-bulletX_enemy = chindi.enemyX
-bulletY_enemy_change = 2
-bulletX_enemy_change = 0
-bullet_enemy_state = "start"
+def fire_bullet_enemy(x, y):
+    global bullet_enemy_state
+    bullet_enemy_state = "fire"
+    screen.blit(bulletImg_enemy, (x, y - 4))
 
-bulletImg_enemy_boss = pygame.image.load('bullet.png')
-bulletY_enemy_boss = boss.enemyY
-bulletX_enemy_boss = boss.enemyX
-bulletY_enemy_change_boss = 2
-bulletX_enemy_change_boss = 0
-bullet_enemy_state_boss = "start"
 
 
 # Player location
@@ -84,33 +71,14 @@ def fire_bullet(x, y):
     screen.blit(bulletImg, (x, y + 13))
 
 
-def fire_bullet_enemy(x, y):
-    global bullet_enemy_state
-    bullet_enemy_state = "fire"
-    screen.blit(bulletImg_enemy, (x, y - 8))
-
-
-def fire_bullet_enemy_boss(x, y):
-    global bullet_enemy_state_boss
-    bullet_enemy_state_boss = "fire"
-    screen.blit(bulletImg_enemy, (x, y - 8))
-
-
 # Enemy collision
-def isCollision(enemyX, enemyY, bulletX, bulletY):
+def isCollision(enemyX, enemyY, bulletX, bulletY, radius):
     distance = math.sqrt((math.pow(enemyX - bulletX, 2)) + (math.pow(enemyY - bulletY, 2)))
-    if distance < 32:
+    if distance < radius:
         return True
     else:
         return False
 
-
-def isCollision_enemy(playerX, playerY, bulletX_enemy, bulletY_enemy):
-    distance = math.sqrt((math.pow(playerX - bulletX_enemy, 2)) + (math.pow(playerY - bulletY_enemy, 2)))
-    if distance < 32:
-        return True
-    else:
-        return False
 
 
 # showing score
@@ -146,9 +114,21 @@ def You_Win_text():
     screen.blit(You_Win_text, (275, 250))
 
 
-# Initialize score and playerX_update
-score = 0
+# Initialize playerX_update
 playerX_update = 0
+
+# Creating enemies
+boss = enemy()
+chindi = small_enemies()
+chindi2 = small_enemies()
+chindi3 = small_enemies()
+randchindi = small_enemies()
+list_of_object = [boss, chindi, chindi2, chindi3]
+
+bulletImg_enemy = pygame.image.load('bullet.png')
+bulletY_enemy_change = 0.75
+bulletX_enemy_change = 0
+bullet_enemy_state = "start"
 
 # Game running
 while run:
@@ -168,13 +148,6 @@ while run:
                 if bullet_state == "start":
                     bulletX = playerX + 56
                     fire_bullet(bulletX, bulletY)
-                if bullet_enemy_state == "start":
-                    bulletX_enemy = chindi.enemyX + 40
-                    fire_bullet_enemy(bulletX_enemy, bulletY_enemy)
-
-                if bullet_enemy_state_boss == "start":
-                    bulletX_enemy_boss = boss.enemyX + 40
-                    fire_bullet_enemy_boss(bulletX_enemy_boss, bulletY_enemy_boss)
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 playerX_update = 0
@@ -189,15 +162,12 @@ while run:
     # Enemy movements
     for object in list_of_object:
 
-
         # You Win
         if enemy_health_value == 0:
             for j in list_of_object:
-                if j==boss:
-                    object.enemyx = 2000
-                You_Win_text()
-
-                break
+                object.enemyx = 2000
+            You_Win_text()
+            break
 
         object.enemyX += object.enemy_changeX
         object.enemyY += object.enemy_changeY
@@ -205,7 +175,7 @@ while run:
         # boundary detection
         if object.enemyX <= 0:
             object.enemy_changeX = 0.3
-        elif object.enemyX >= 672:
+        elif object.enemyX >= 736:
             object.enemy_changeX = -0.3
 
         if object.enemyY <= 0:
@@ -214,50 +184,48 @@ while run:
             object.enemy_changeY = -0.3
 
         # Collision
-        collision = isCollision_enemy(object.enemyX + 32, object.enemyY, bulletX, bulletY)
+        collision = isCollision(object.enemyX + 32, object.enemyY, bulletX, bulletY, 32)
         if collision:
             bulletY = 480
             bullet_state = "start"
-            score += 1
-            enemy_health_value -= 25
+            score_value += 1
+            if object==boss:
+                enemy_health_value -= 25
 
         # Changes enemy location
         object.enemy(object.enemyX, object.enemyY)
-    # Collision_to_player
-    collision_to_player = isCollision_enemy(playerX, playerY, bulletX_enemy, bulletY_enemy)
-
-    if collision_to_player:
-        bulletY = chindi.enemyY
-        bullet_enemy_state = "start"
-    if bullet_enemy_state == "fire":
-        fire_bullet_enemy(bulletX_enemy, bulletY_enemy)
-        bulletY_enemy += bulletY_enemy_change
-
-    collision_to_player_boss = isCollision_enemy(playerX, playerY, bulletX_enemy_boss, bulletY_enemy_boss)
-
-    if collision_to_player_boss:
-        bulletY = boss.enemyY
-        bullet_enemy_state_boss = "start"
-    if bullet_enemy_state_boss == "fire":
-        fire_bullet_enemy(bulletX_enemy_boss, bulletY_enemy_boss)
-        bulletY_enemy_boss += bulletY_enemy_change_boss
 
     # Reset bullet when it leaves the screen
     if bulletY <= 0:
         bulletY = 480
         bullet_state = "start"
         # bullet movement
-    if bulletY_enemy > 500:
-        bulletY_enemy = chindi.enemyY
-        bullet_enemy_state = "start"
-
-    if bulletY_enemy_boss > 500:
-        bulletY_enemy_boss = boss.enemyY
-        bullet_enemy_state_boss = "start"
-
     if bullet_state == "fire":
         fire_bullet(bulletX, bulletY)
         bulletY -= bulletY_change
+
+
+    if bullet_enemy_state=="start":
+        randchindi = list_of_object[random.randint(0, len(list_of_object)-1)]
+        bulletY_enemy = randchindi.enemyY
+        bulletX_enemy = randchindi.enemyX
+        bulletX_enemy = randchindi.enemyX + 24
+
+    fire_bullet_enemy(bulletX_enemy, bulletY_enemy)
+
+    if bulletY_enemy > 550:
+        bulletY_enemy = randchindi.enemyY
+        bulletY_enemy = randchindi.enemyY
+        bullet_enemy_state = "start"
+    if bullet_enemy_state == "fire":
+        fire_bullet_enemy(bulletX_enemy, bulletY_enemy)
+        bulletY_enemy += bulletY_enemy_change
+        if isCollision(playerX+56,playerY,bulletX_enemy,bulletY_enemy, 60):
+            bullet_enemy_state="start"
+            score_value-=1
+
+
+
 
     playerLoc(playerX, playerY)
     show_score(textX, textY)
