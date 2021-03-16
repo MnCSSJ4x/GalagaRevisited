@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+import time
 
 # Initialises pygame
 pygame.init()
@@ -86,6 +87,20 @@ font = pygame.font.Font('freesansbold.ttf', 20)
 textX = 10
 textY = 10
 
+# showing player lives
+player_lives = 1
+p_life_font = pygame.font.Font('freesansbold.ttf', 20)
+
+text5 = 10
+text6 = 10
+
+# showing enemy lives
+enemy_lives = 1
+e_life_font = pygame.font.Font('freesansbold.ttf', 20)
+
+text7 = 600
+text8 = 10
+
 # showing enemy health
 enemy_health_value = 100
 health_font = pygame.font.Font('freesansbold.ttf', 20)
@@ -106,6 +121,13 @@ Win_font = pygame.font.Font('freesansbold.ttf', 64)
 # you lose text
 lose_font = pygame.font.Font('freesansbold.ttf', 64)
 
+def show_p_lives(x,y):
+    p_lives = font.render("My Lives :" + str(player_lives), True, (255, 255, 255))
+    screen.blit(p_lives, (x,y))
+
+def show_e_lives(x,y):
+    e_lives = font.render("Enemy Lives :" + str(enemy_lives), True, (255, 255, 255))
+    screen.blit(e_lives, (x,y))
 
 def show_score(x, y):
     score = font.render("score :" + str(score_value), True, (255, 255, 255))
@@ -113,7 +135,7 @@ def show_score(x, y):
 
 
 def show_enemy_health(x, y):
-    Enemy_health = health_font.render("Enemy health :" + str(enemy_health_value), True, (255, 255, 255))
+    Enemy_health = health_font.render("Enemy health :" + str(int(enemy_health_value)), True, (255, 255, 255))
     screen.blit(Enemy_health, (x, y))
 
 
@@ -131,7 +153,7 @@ def You_lose_text():
     You_lose_text = lose_font.render("YOU LOSE", True, (255, 255, 255))
     screen.blit(You_lose_text, (250, 250))
 
-enemyspawn = 3
+enemyspawn = 1
 
 # Initialize playerX_update
 playerX_update = 0
@@ -150,6 +172,13 @@ bulletImg_enemy = pygame.image.load('bullet.png')
 bulletY_enemy_change = 0.75
 bulletX_enemy_change = 0
 bullet_enemy_state = "start"
+perk_counter=0
+
+def endgame(counter):
+    return counter+1
+
+counter=0
+
 
 # Game running
 while run:
@@ -183,18 +212,6 @@ while run:
     # Enemy movements
     for object in list_of_object:
 
-        # You Win
-        if enemy_health_value == 0:
-            for j in list_of_object:
-                object.enemyx = 2000
-            You_Win_text()
-            break
-        # You lose
-        if player_health_value == 0:
-            for p in list_of_object:
-                object.enemyx = 2000
-            You_lose_text()
-            break
 
         object.enemyX += object.enemy_changeX
         object.enemyY += object.enemy_changeY
@@ -215,27 +232,51 @@ while run:
         if collision:
             bulletY = 480
             bullet_state = "start"
+
             if object != boss:
                 list_of_object.pop(list_of_object.index(object))
-                if enemy_health_value<=25 and len(list_of_object)==1:
-                    spawnnumber-=1
             if object == boss:
-                enemy_health_value -= 25
+                if enemy_health_value <= 75 and player_health_value == 100 and perk_counter<=1:
+                    enemy_health_value-=30
+                else:
+                    enemy_health_value -= 25
+            if enemy_health_value <= 25 and list_of_object==[boss]:
+                spawnnumber -= 1
+
+
             if len(list_of_object)==0 and enemyspawn!=0:
                 for i in range(random.randint(3,6)):
                     list_of_object.append(small_enemies())
                 enemyspawn-=1
                 if(enemyspawn==0):
                     list_of_object=[boss]
+                    player_lives=3
 
                 # Changes enemy location
         object.enemy(object.enemyX, object.enemyY)
+    # You Win
+    if enemy_health_value <= 0:
+        enemy_lives -= 1
+        enemy_health_value = 100
+
+    if enemy_lives == 0:
+        enemy_health_value=0
+        for object in list_of_object:
+            object.enemyX = 2000
+        You_Win_text()
+        if counter<=2500:
+            counter=endgame(counter)
+        else:
+            run=False
+
 
     #Enemy spawning
-    if enemy_health_value<=25 and len(list_of_object)==1:
+    if enemy_health_value>0 and enemy_health_value<=25 and len(list_of_object)==1:
         for i in range(spawnnumber):
             list_of_object.append(small_enemies())
     # Reset bullet when it leaves the screen
+    if boss in list_of_object and len(list_of_object)>1:
+        enemy_health_value+=0.005
     if bulletY <= 0:
         bulletY = 480
         bullet_state = "start"
@@ -273,10 +314,22 @@ while run:
             else:
                 player_health_value -=5
 
+        if player_health_value <= 0:
+            player_lives -= 1
+            enemy_lives += 1
+            player_health_value = 100
+
+        if player_lives == 0:
+            for object in list_of_object:
+                object.enemyX = 2000
+            You_lose_text()
+
 
     playerLoc(playerX, playerY)
 
     show_enemy_health(text1, text2)
     show_player_health(text3, text4)
+    show_p_lives(text5, text6)
+    show_e_lives(text7, text8)
     # Update the screen
     pygame.display.update()
