@@ -153,7 +153,7 @@ def You_lose_text():
     You_lose_text = lose_font.render("YOU LOSE", True, (255, 255, 255))
     screen.blit(You_lose_text, (250, 250))
 
-enemyspawn = 1
+enemyspawn = 5
 
 # Initialize playerX_update
 playerX_update = 0
@@ -174,7 +174,6 @@ bulletX_enemy_change = 0
 bullet_enemy_state = "start"
 perk_counter=0
 
-#Ends the game
 def endgame(counter):
     return counter+1
 
@@ -238,9 +237,12 @@ while run:
                 list_of_object.pop(list_of_object.index(object))
             if object == boss:
                 if enemy_health_value <= 75 and player_health_value == 100 and perk_counter<=1:
-                    enemy_health_value-=30
+                    enemy_health_value-=10
+                    perk_counter+=1
                 else:
-                    enemy_health_value -= 25
+                    enemy_health_value -= 5
+                if enemy_health_value <= 25 and player_health_value == 100 and player_lives==3:
+                    player_lives+=1
             if enemy_health_value <= 25 and list_of_object==[boss]:
                 spawnnumber -= 1
 
@@ -253,14 +255,17 @@ while run:
                     list_of_object=[boss]
                     player_lives=3
 
+
                 # Changes enemy location
         object.enemy(object.enemyX, object.enemyY)
     # You Win
+
     if enemy_health_value <= 0:
         enemy_lives -= 1
         enemy_health_value = 100
 
-    if enemy_lives == 0:
+    if enemy_lives <= 0:
+        enemy_lives=0
         enemy_health_value=0
         for object in list_of_object:
             object.enemyX = 2000
@@ -320,10 +325,15 @@ while run:
             enemy_lives += 1
             player_health_value = 100
 
-        if player_lives == 0:
+        if player_lives <= 0:
+            player_lives=0
             for object in list_of_object:
                 object.enemyX = 2000
             You_lose_text()
+            if counter<=2500:
+                counter=endgame(counter)
+            else:
+                run=False
 
 
     playerLoc(playerX, playerY)
@@ -333,4 +343,4 @@ while run:
     show_p_lives(text5, text6)
     show_e_lives(text7, text8)
     # Update the screen
-    pygame.display.update() 
+    pygame.display.update()
