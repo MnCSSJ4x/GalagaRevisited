@@ -2,16 +2,27 @@ import os
 
 import pygame
 from pygame.locals import *
+from pygame import mixer
 
 pygame.init()
 
 screen_width = 600
 screen_height = 600
 
+#background screen and icon
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Button Demo')
 
-font = pygame.font.SysFont('Constantia', 30)
+icon=pygame.image.load('icon.jpg')
+pygame.display.set_icon(icon)
+
+background=pygame.image.load('Splash.png')
+
+#background sound
+mixer.music.load('Background.mp3')
+mixer.music.play(-1)
+
+font = pygame.font.SysFont('Calibri', 16)
 
 # define colours
 bg = (0, 0, 0)
@@ -23,15 +34,15 @@ white = (255, 255, 255)
 clicked = False
 counter = 0
 
-
+music_count=0
 class button():
     # colours for button and text
-    button_col = (255, 0, 0)
+    button_col = (0, 0, 160)
     hover_col = (75, 225, 255)
     click_col = (50, 150, 255)
-    text_col = black
-    width = 180
-    height = 70
+    text_col = white
+    width = 200
+    height = 50
 
     def __init__(self, x, y, text):
         self.x = x
@@ -75,19 +86,26 @@ class button():
         return action
 
 
-again = button(75, 200, 'Play')
-quit = button(325, 200, 'Quit?')
+again = button(75, 200, 'There was no walking away')
+quit = button(325, 200, ' My luck had finally run out')
 
 run = True
 while run:
 
     screen.fill(bg)
+    screen.blit(background,(0,0))
 
     if again.draw_button():
-        os.system('python3 main3.py')
+        mixer.music.pause()
+        os.system('main.exe')
+        music_count+=1
+       
 
     if quit.draw_button():
         run = False
+    if music_count:
+        mixer.music.unpause()
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
