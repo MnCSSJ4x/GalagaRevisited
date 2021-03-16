@@ -174,6 +174,7 @@ bulletX_enemy_change = 0
 bullet_enemy_state = "start"
 perk_counter=0
 
+#Ends the game
 def endgame(counter):
     return counter+1
 
@@ -332,4 +333,4 @@ while run:
     show_p_lives(text5, text6)
     show_e_lives(text7, text8)
     # Update the screen
-    pygame.display.update()
+    pygame.display.update() 
