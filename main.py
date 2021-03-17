@@ -2,10 +2,16 @@ import pygame
 import random
 import math
 import time
+from pygame import mixer
 
 # Initialises pygame
 pygame.init()
 
+#music/background
+background = pygame.image.load('background.png') 
+
+mixer.music.load('beforeboss.mp3')
+mixer.music.play(-1)
 
 # Boss
 class enemy:
@@ -13,8 +19,8 @@ class enemy:
         self.enemylooks = pygame.image.load('ufo.png')
         self.enemyX = random.randint(0, 736)
         self.enemyY = random.randint(50, 108)
-        self.enemy_changeX = 0.3
-        self.enemy_changeY = 0.3
+        self.enemy_changeX = 3
+        self.enemy_changeY = 3
 
     def enemy(self, x, y):
         screen.blit(self.enemylooks, (x, y))
@@ -27,8 +33,8 @@ class small_enemies:
         self.enemylooks = pygame.image.load('battleship.png')
         self.enemyX = random.randint(0, 736)
         self.enemyY = random.randint(50, 108)
-        self.enemy_changeX = 0.3
-        self.enemy_changeY = 0.3
+        self.enemy_changeX = 2
+        self.enemy_changeY = 2
 
     def enemy(self, x, y):
         screen.blit(self.enemylooks, (x, y))
@@ -49,7 +55,7 @@ bulletImg = pygame.image.load('bullet.png')
 bulletX = 0
 bulletY = 480
 bulletX_change = 0
-bulletY_change = 1.5
+bulletY_change = 10
 bullet_state = "start"
 
 
@@ -169,7 +175,7 @@ list_of_object = [chindi, chindi2, chindi3, chindi4]
 
 bossbullet=False
 bulletImg_enemy = pygame.image.load('bullet.png')
-bulletY_enemy_change = 0.75
+bulletY_enemy_change = 12
 bulletX_enemy_change = 0
 bullet_enemy_state = "start"
 perk_counter=0
@@ -180,10 +186,15 @@ def endgame(counter):
 counter=0
 
 
+
+
+
+
 # Game running
 while run:
     # Screen fill
     screen.fill((0, 0, 0))
+    screen.blit(background, (0,0))
 
     # Processes next event in the game
     for event in pygame.event.get():
@@ -191,11 +202,14 @@ while run:
             run = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
-                playerX_update = 0.5
+                playerX_update = 5
             elif event.key == pygame.K_LEFT:
-                playerX_update = -0.5
+                playerX_update = -5
             if event.key == pygame.K_SPACE:
                 if bullet_state == "start":
+                    
+                    bulletsound=mixer.Sound('laser.wav')
+                    bulletsound.play()
                     bulletX = playerX + 56
                     fire_bullet(bulletX, bulletY)
         if event.type == pygame.KEYUP:
@@ -218,24 +232,29 @@ while run:
 
         # boundary detection
         if object.enemyX <= 0:
-            object.enemy_changeX = 0.3
+            object.enemy_changeX = 2
         elif object.enemyX >= 736:
-            object.enemy_changeX = -0.3
+            object.enemy_changeX = -2
 
         if object.enemyY <= 0:
-            object.enemy_changeY = 0.3
+            object.enemy_changeY = 2
         elif object.enemyY >= 108:
-            object.enemy_changeY = -0.3
+            object.enemy_changeY = -2
 
         # Collision
         collision = isCollision(object.enemyX + 32, object.enemyY, bulletX, bulletY, 32)
         if collision:
             bulletY = 480
             bullet_state = "start"
+             
 
             if object != boss:
+                explosionsound=mixer.Sound('explosion.wav')
+                explosionsound.play()
                 list_of_object.pop(list_of_object.index(object))
             if object == boss:
+                explosionsound=mixer.Sound('enemy_hit.wav')
+                explosionsound.play()
                 if enemy_health_value <= 75 and player_health_value == 100 and perk_counter<=1:
                     enemy_health_value-=10
                     perk_counter+=1
@@ -254,6 +273,9 @@ while run:
                 if(enemyspawn==0):
                     list_of_object=[boss]
                     player_lives=3
+                   
+                    
+                   
 
 
                 # Changes enemy location
@@ -261,6 +283,8 @@ while run:
     # You Win
 
     if enemy_health_value <= 0:
+        enemyexplosionsound=mixer.Sound('explosion.wav')
+        enemyexplosionsound.play()
         enemy_lives -= 1
         enemy_health_value = 100
 
@@ -292,9 +316,14 @@ while run:
         bulletY -= bulletY_change
 
     if bullet_enemy_state == "start":
+        bulletsound=mixer.Sound('smallenemybullet.wav')
+        bulletsound.play()
+
         randchindi = list_of_object[random.randint(0, len(list_of_object) - 1)]
         #Boss bullets do more damage
         if randchindi==boss:
+            bulletsound=mixer.Sound('bossbullet.mp3')
+            bulletsound.play()
             bossbullet=True
         else:
             bossbullet=False
@@ -314,6 +343,8 @@ while run:
         bulletY_enemy += bulletY_enemy_change
         if isCollision(playerX + 56, playerY, bulletX_enemy, bulletY_enemy, 60):
             bullet_enemy_state = "start"
+            playerexplosionsound=mixer.Sound('hit_sound.wav')
+            playerexplosionsound.play()
 
             if bossbullet:
                 player_health_value -= 10
@@ -321,6 +352,8 @@ while run:
                 player_health_value -=5
 
         if player_health_value <= 0:
+            playerexplosionsound=mixer.Sound('explosion.wav')
+            playerexplosionsound.play()
             player_lives -= 1
             enemy_lives += 1
             player_health_value = 100
@@ -334,6 +367,9 @@ while run:
                 counter=endgame(counter)
             else:
                 run=False
+       
+            
+
 
 
     playerLoc(playerX, playerY)
