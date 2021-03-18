@@ -7,6 +7,11 @@ from pygame import mixer
 # Initialises pygame
 pygame.init()
 
+pygame.display.set_caption('Celestial Warfare')
+
+icon=pygame.image.load('icon.jpg')
+pygame.display.set_icon(icon)
+
 #music/background
 background = pygame.image.load('background.png') 
 
@@ -253,7 +258,7 @@ while run:
                 explosionsound.play()
                 list_of_object.pop(list_of_object.index(object))
             if object == boss:
-                explosionsound=mixer.Sound('enemy_hit.wav')
+                explosionsound=mixer.Sound('hit_sound.wav')
                 explosionsound.play()
                 if enemy_health_value <= 75 and player_health_value == 100 and perk_counter<=1:
                     enemy_health_value-=10

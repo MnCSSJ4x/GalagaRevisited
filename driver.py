@@ -11,7 +11,7 @@ screen_height = 600
 
 #background screen and icon
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Button Demo')
+pygame.display.set_caption('Celestial Warfare')
 
 icon=pygame.image.load('icon.jpg')
 pygame.display.set_icon(icon)
