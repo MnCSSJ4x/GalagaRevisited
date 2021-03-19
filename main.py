@@ -190,7 +190,7 @@ def endgame(counter):
 
 counter=0
 
-
+counter_enemy=0
 
 
 
@@ -299,7 +299,8 @@ while run:
         for object in list_of_object:
             object.enemyX = 2000
         You_Win_text()
-        if counter<=2500:
+        mixer.stop()
+        if counter<=400:
             counter=endgame(counter)
         else:
             run=False
@@ -365,18 +366,16 @@ while run:
 
         if player_lives <= 0:
             player_lives=0
-            for object in list_of_object:
-                object.enemyX = 2000
             You_lose_text()
-            if counter<=2500:
-                counter=endgame(counter)
+            for object in list_of_object:
+                object.enemy_changeX=2000
+            mixer.stop() 
+        
+            if counter_enemy<=200:
+                counter_enemy=endgame(counter_enemy)
             else:
-                run=False
-       
+                run=False   
             
-
-
-
     playerLoc(playerX, playerY)
 
     show_enemy_health(text1, text2)
