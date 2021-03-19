@@ -180,7 +180,7 @@ list_of_object = [chindi, chindi2, chindi3, chindi4]
 
 bossbullet=False
 bulletImg_enemy = pygame.image.load('bullet.png')
-bulletY_enemy_change = 12
+bulletY_enemy_change = 10
 bulletX_enemy_change = 0
 bullet_enemy_state = "start"
 perk_counter=0
@@ -260,7 +260,7 @@ while run:
             if object == boss:
                 explosionsound=mixer.Sound('hit_sound.wav')
                 explosionsound.play()
-                if enemy_health_value <= 75 and player_health_value == 100 and perk_counter<=1:
+                if enemy_health_value <= 75 and player_health_value == 100 and perk_counter<=3:
                     enemy_health_value-=10
                     perk_counter+=1
                 else:
@@ -272,7 +272,7 @@ while run:
 
 
             if len(list_of_object)==0 and enemyspawn!=0:
-                for i in range(random.randint(3,6)):
+                for i in range(random.randint(3,5)):
                     list_of_object.append(small_enemies())
                 enemyspawn-=1
                 if(enemyspawn==0):
@@ -290,6 +290,7 @@ while run:
     if enemy_health_value <= 0:
         enemyexplosionsound=mixer.Sound('explosion.wav')
         enemyexplosionsound.play()
+        spawnnumber=4
         enemy_lives -= 1
         enemy_health_value = 100
 
@@ -300,7 +301,7 @@ while run:
             object.enemyX = 2000
         You_Win_text()
         mixer.stop()
-        if counter<=400:
+        if counter<=200:
             counter=endgame(counter)
         else:
             run=False
@@ -312,7 +313,7 @@ while run:
             list_of_object.append(small_enemies())
     # Reset bullet when it leaves the screen
     if boss in list_of_object and len(list_of_object)>1:
-        enemy_health_value+=0.005
+        enemy_health_value+=0.035
     if bulletY <= 0:
         bulletY = 480
         bullet_state = "start"
