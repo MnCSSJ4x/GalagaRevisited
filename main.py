@@ -30,8 +30,8 @@ class enemy:
     def enemy(self, x, y):
         screen.blit(self.enemylooks, (x, y))
 
-    # Small enemies
 
+# Small enemies
 
 class small_enemies:
     def __init__(self):
@@ -44,13 +44,15 @@ class small_enemies:
     def enemy(self, x, y):
         screen.blit(self.enemylooks, (x, y))
 
-    # Screen
-
+# Screen
 
 screen = pygame.display.set_mode((800, 600))
 run = True
+
+#Number of reinforcements that spawn when boss is low
 spawnnumber=5
 # Player
+
 playerImage = pygame.image.load("spaceship.png")
 playerX = 336
 playerY = 450
@@ -63,6 +65,7 @@ bulletX_change = 0
 bulletY_change = 10
 bullet_state = "start"
 
+#Function to fire an enemy bullet
 
 def fire_bullet_enemy(x, y):
     global bullet_enemy_state
@@ -71,11 +74,13 @@ def fire_bullet_enemy(x, y):
 
 
 # Player location
+
 def playerLoc(X, Y):
     screen.blit(playerImage, (X, Y))
 
 
-# Firing a bullet
+# Function to fire a player bullet
+
 def fire_bullet(x, y):
     global bullet_state
     bullet_state = "fire"
@@ -83,6 +88,7 @@ def fire_bullet(x, y):
 
 
 # Enemy collision
+
 def isCollision(enemyX, enemyY, bulletX, bulletY, radius):
     distance = math.sqrt((math.pow(enemyX - bulletX, 2)) + (math.pow(enemyY - bulletY, 2)))
     if distance < radius:
@@ -132,6 +138,7 @@ Win_font = pygame.font.Font('freesansbold.ttf', 64)
 # you lose text
 lose_font = pygame.font.Font('freesansbold.ttf', 64)
 
+#All functions below handle text display on the screen
 def show_p_lives(x,y):
     p_lives = font.render("My Lives :" + str(player_lives), True, (255, 255, 255))
     screen.blit(p_lives, (x,y))
@@ -164,27 +171,32 @@ def You_lose_text():
     You_lose_text = lose_font.render("YOU LOSE", True, (255, 255, 255))
     screen.blit(You_lose_text, (250, 250))
 
+#Number of waves that spawn in before boss battle
 enemyspawn = 5
 
 # Initialize playerX_update
 playerX_update = 0
 
-# Creating enemies
+# Initial enemies present at the start of the game
 boss = enemy()
 chindi = small_enemies()
 chindi2 = small_enemies()
 chindi3 = small_enemies()
 chindi4 = small_enemies()
 randchindi = small_enemies()
+
+#The boss is not included in the first object list
 list_of_object = [chindi, chindi2, chindi3, chindi4]
 
 bossbullet=False
+
 bulletImg_enemy = pygame.image.load('bullet.png')
 bulletY_enemy_change = 10
 bulletX_enemy_change = 0
 bullet_enemy_state = "start"
 perk_counter=0
 
+#Counter for endgame screen display
 def endgame(counter):
     return counter+1
 
@@ -228,10 +240,10 @@ while run:
     if playerX >= 672:
         playerX = 672
 
-    # Enemy movements
+    #Iterates through enemy object list
     for object in list_of_object:
 
-
+        #Enemy movement
         object.enemyX += object.enemy_changeX
         object.enemyY += object.enemy_changeY
 
@@ -246,13 +258,13 @@ while run:
         elif object.enemyY >= 108:
             object.enemy_changeY = -2
 
-        # Collision
+        # Collision of player bullet with enemy
         collision = isCollision(object.enemyX + 32, object.enemyY, bulletX, bulletY, 32)
         if collision:
             bulletY = 480
             bullet_state = "start"
              
-
+            #Checks whether to kill the enemy or reduce health of the boss
             if object != boss:
                 explosionsound=mixer.Sound('explosion.wav')
                 explosionsound.play()
@@ -260,6 +272,7 @@ while run:
             if object == boss:
                 explosionsound=mixer.Sound('hit_sound.wav')
                 explosionsound.play()
+                #Checks if player is legible for perks
                 if enemy_health_value <= 75 and player_health_value == 100 and perk_counter<=3:
                     enemy_health_value-=10
                     perk_counter+=1
@@ -267,26 +280,25 @@ while run:
                     enemy_health_value -= 5
                 if enemy_health_value <= 25 and player_health_value == 100 and player_lives==3:
                     player_lives+=1
+            #Reduces the number of reinforcements each time the boss is low on health in that particular life count
             if enemy_health_value <= 25 and list_of_object==[boss]:
                 spawnnumber -= 1
 
-
+            #Spawns new enemies in waves before boss battle
             if len(list_of_object)==0 and enemyspawn!=0:
                 for i in range(random.randint(3,5)):
                     list_of_object.append(small_enemies())
                 enemyspawn-=1
+                #When enemy waves are killed, the boss is spawned in
                 if(enemyspawn==0):
                     list_of_object=[boss]
                     player_lives=3
-                   
-                    
-                   
 
 
-                # Changes enemy location
+              # Changes enemy location
         object.enemy(object.enemyX, object.enemyY)
-    # You Win
 
+    #Enemy life count decreases, new reinforcement count for each boss life
     if enemy_health_value <= 0:
         enemyexplosionsound=mixer.Sound('explosion.wav')
         enemyexplosionsound.play()
@@ -297,23 +309,30 @@ while run:
     if enemy_lives <= 0:
         enemy_lives=0
         enemy_health_value=0
+
+        #You win text
         for object in list_of_object:
             object.enemyX = 2000
         You_Win_text()
         mixer.stop()
+
+        #Game ends
         if counter<=200:
             counter=endgame(counter)
         else:
             run=False
 
 
-    #Enemy spawning
+    #Reinforcements spawning for boss
     if enemy_health_value>0 and enemy_health_value<=25 and len(list_of_object)==1:
         for i in range(spawnnumber):
             list_of_object.append(small_enemies())
-    # Reset bullet when it leaves the screen
+
+    #Boss health regeneration when reinforcements are present
     if boss in list_of_object and len(list_of_object)>1:
         enemy_health_value+=0.035
+
+    #Resets player bullet to original position
     if bulletY <= 0:
         bulletY = 480
         bullet_state = "start"
@@ -322,11 +341,14 @@ while run:
         fire_bullet(bulletX, bulletY)
         bulletY -= bulletY_change
 
+    #Enemy bullet sound
     if bullet_enemy_state == "start":
         bulletsound=mixer.Sound('smallenemybullet.wav')
         bulletsound.play()
+        #A random enemy shoots a bullet
 
         randchindi = list_of_object[random.randint(0, len(list_of_object) - 1)]
+
         #Boss bullets do more damage
         if randchindi==boss:
             bulletsound=mixer.Sound('bossbullet.mp3')
@@ -335,29 +357,37 @@ while run:
         else:
             bossbullet=False
 
+        #Enemy bullet starting location
         bulletY_enemy = randchindi.enemyY + 40
         bulletX_enemy = randchindi.enemyX
         bulletX_enemy = randchindi.enemyX + 28
 
     fire_bullet_enemy(bulletX_enemy, bulletY_enemy)
 
+    #Reset enemy bullet state
     if bulletY_enemy > 550:
         bulletY_enemy = randchindi.enemyY
         bulletY_enemy = randchindi.enemyY
         bullet_enemy_state = "start"
+
+    #Continues the trajectory of the enemy bullet
     if bullet_enemy_state == "fire":
         fire_bullet_enemy(bulletX_enemy, bulletY_enemy)
         bulletY_enemy += bulletY_enemy_change
+
+        #Checks collision between player and enemy bullet
         if isCollision(playerX + 56, playerY, bulletX_enemy, bulletY_enemy, 60):
             bullet_enemy_state = "start"
             playerexplosionsound=mixer.Sound('hit_sound.wav')
             playerexplosionsound.play()
 
+            #Boss bullets do more damage
             if bossbullet:
                 player_health_value -= 10
             else:
                 player_health_value -=5
 
+        #Player life count reduces
         if player_health_value <= 0:
             playerexplosionsound=mixer.Sound('explosion.wav')
             playerexplosionsound.play()
@@ -365,23 +395,27 @@ while run:
             enemy_lives += 1
             player_health_value = 100
 
+        #You Lose
         if player_lives <= 0:
             player_lives=0
             You_lose_text()
             for object in list_of_object:
                 object.enemy_changeX=2000
             mixer.stop() 
-        
+
             if counter_enemy<=200:
                 counter_enemy=endgame(counter_enemy)
             else:
                 run=False   
-            
+
+    #Updates player location
     playerLoc(playerX, playerY)
 
+    #Updates text on the screen
     show_enemy_health(text1, text2)
     show_player_health(text3, text4)
     show_p_lives(text5, text6)
     show_e_lives(text7, text8)
+
     # Update the screen
     pygame.display.update()
