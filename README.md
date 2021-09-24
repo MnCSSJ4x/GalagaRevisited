@@ -1,5 +1,4 @@
 # Galaga Revisited 
 
 Build using pygame. \
-Start the game using driver.exe. \ 
-Enjoy
+Start the game using driver.exe. 
