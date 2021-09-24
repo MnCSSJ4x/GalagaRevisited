@@ -1,1 +1,3 @@
-# Python_5.4_project-
+# Galaga Revisited 
+
+Build using pygame. 
